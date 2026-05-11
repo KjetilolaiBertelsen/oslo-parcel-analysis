@@ -460,10 +460,18 @@ if has_households and "service_per_1000_hh" in df.columns:
 # ── PICKUP POINTS MAP ─────────────────────────────────────────────────────────
 
 if service_source == "Bring API" and not df_pickup.empty:
-    df_pts = df_pickup[
-        (df_pickup["lat"].notna()) & (df_pickup["lon"].notna()) &
-        (df_pickup["lat"] != 0)    & (df_pickup["lon"] != 0)
-    ].copy()
+
+    # Check columns exist before trying to filter on them
+    has_coords = ("lat" in df_pickup.columns and
+                  "lon" in df_pickup.columns)
+
+    if has_coords:
+        df_pts = df_pickup[
+            (df_pickup["lat"].notna()) & (df_pickup["lon"].notna()) &
+            (df_pickup["lat"] != 0)    & (df_pickup["lon"] != 0)
+        ].copy()
+    else:
+        df_pts = pd.DataFrame()
 
     if not df_pts.empty:
         st.subheader("📍 Individual pickup point locations — Bring API")
