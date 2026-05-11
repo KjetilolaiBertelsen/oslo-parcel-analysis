@@ -466,12 +466,24 @@ if service_source == "Bring API" and not df_pickup.empty:
                   "lon" in df_pickup.columns)
 
     if has_coords:
+        # Cast to float — SQLite sometimes stores numbers as strings
+        df_pickup["lat"] = pd.to_numeric(df_pickup["lat"], errors="coerce")
+        df_pickup["lon"] = pd.to_numeric(df_pickup["lon"], errors="coerce")
+
         df_pts = df_pickup[
             (df_pickup["lat"].notna()) & (df_pickup["lon"].notna()) &
             (df_pickup["lat"] != 0)    & (df_pickup["lon"] != 0)
         ].copy()
     else:
         df_pts = pd.DataFrame()
+
+    # ── TEMPORARY DEBUG — shows on the live app so we can diagnose ────────
+    st.caption(
+        f"🔍 Debug: service={service_source} · "
+        f"has_coords={has_coords} · "
+        f"total_rows={len(df_pickup)} · "
+        f"rows_with_coords={len(df_pts) if has_coords else 0}"
+    )
 
     if not df_pts.empty:
         st.subheader("📍 Individual pickup point locations — Bring API")
