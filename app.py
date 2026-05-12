@@ -133,7 +133,7 @@ if has_households:
 
 # ── HEADER ────────────────────────────────────────────────────────────────────
 
-st.title("📦 Oslo Parcel Locker Location Analysis")
+st.title("Oslo Parcel Locker Location Analysis")
 st.markdown(
     "**Which Oslo districts should a logistics operator "
     "prioritise for new parcel lockers or pickup points?**"
@@ -149,7 +149,7 @@ st.divider()
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 
-st.sidebar.header("⚙️ Model settings")
+st.sidebar.header("Model settings")
 st.sidebar.markdown("**Scoring weights** — must sum to 100%")
 
 w_pop  = st.sidebar.slider("Population density",  0, 60, 35, 5) / 100
@@ -201,7 +201,7 @@ st.divider()
 
 # ── HEATMAP ───────────────────────────────────────────────────────────────────
 
-st.subheader("🗺️ Oslo bydel heatmap")
+st.subheader("Oslo bydel heatmap")
 
 metric_map = {
     "Composite score":    ("composite_score", "Attractiveness score", "RdYlGn"),
@@ -303,7 +303,7 @@ st.divider()
 
 # ── RANKING BAR CHART ─────────────────────────────────────────────────────────
 
-st.subheader("📊 Location attractiveness ranking — all 15 bydeler")
+st.subheader("Location attractiveness ranking — all 15 bydeler")
 
 fig_bar = px.bar(
     df.sort_values("composite_score"),
@@ -327,7 +327,7 @@ st.divider()
 left, right = st.columns(2)
 
 with left:
-    st.subheader("🎯 Density vs coverage gap")
+    st.subheader("Density vs coverage gap")
     st.caption("Upper-left = high demand, low coverage = priority")
 
     fig_sc = px.scatter(
@@ -356,7 +356,7 @@ with left:
     st.plotly_chart(fig_sc, use_container_width=True)
 
 with right:
-    st.subheader("🔁 Sensitivity analysis")
+    st.subheader("Sensitivity analysis")
     st.caption("How rankings shift under different weight priorities")
 
     scenarios = {
@@ -399,7 +399,7 @@ st.divider()
 
 # ── INDICATOR BREAKDOWN ───────────────────────────────────────────────────────
 
-st.subheader("📐 Indicator breakdown")
+st.subheader("Indicator breakdown")
 
 c1, c2 = st.columns(2)
 with c1:
@@ -479,14 +479,14 @@ if service_source == "Bring API" and not df_pickup.empty:
 
     # ── TEMPORARY DEBUG — shows on the live app so we can diagnose ────────
     st.caption(
-        f"🔍 Debug: service={service_source} · "
+        f"Debug: service={service_source} · "
         f"has_coords={has_coords} · "
         f"total_rows={len(df_pickup)} · "
         f"rows_with_coords={len(df_pts) if has_coords else 0}"
     )
 
     if not df_pts.empty:
-        st.subheader("📍 Individual pickup point locations — Bring API")
+        st.subheader("Individual pickup point locations — Bring API")
         st.caption(
             f"{df_pts['station_id'].nunique():,} unique stations · "
             f"{int(df_pts['is_locker'].sum())} parcel lockers (type 37)"
@@ -513,7 +513,7 @@ if service_source == "Bring API" and not df_pickup.empty:
 
 # ── FULL DATA TABLE ───────────────────────────────────────────────────────────
 
-st.subheader("📋 Full dataset")
+st.subheader("Full dataset")
 
 table_cols = ["rank", "bydel", "segment", "population", "pop_density",
               "traffic_score", "transport_hub", "service_points",
@@ -543,14 +543,14 @@ display_df = (df[[c for c in table_cols if c in df.columns]]
 st.dataframe(display_df, use_container_width=True, height=420)
 
 csv = display_df.to_csv(index=False).encode("utf-8")
-st.download_button("⬇️ Download CSV", data=csv,
+st.download_button("Download CSV", data=csv,
                    file_name="oslo_parcel_analysis.csv", mime="text/csv")
 st.divider()
 
 
 # ── STRATEGIC RECOMMENDATIONS ─────────────────────────────────────────────────
 
-st.subheader("🎯 Strategic recommendations")
+st.subheader("Strategic recommendations")
 
 top4 = df[df["rank"] <= 4][
     ["rank", "bydel", "composite_score", "pop_density", demand_col]
@@ -571,7 +571,7 @@ st.divider()
 
 # ── METHODOLOGY ───────────────────────────────────────────────────────────────
 
-with st.expander("📖 Methodology and data sources"):
+with st.expander("  Methodology and data sources"):
     st.markdown(f"""
 **Formula:**
 `Score = {w_pop:.0%}×Pop_Density + {w_traf:.0%}×Traffic + {w_acc:.0%}×Accessibility + {w_gap:.0%}×Coverage_Gap`
@@ -581,10 +581,10 @@ Score floor of 0.05 applied — prevents any district displaying exactly 0.000.
 
 | Variable | Weight | Source | Status |
 |---|---|---|---|
-| Population density | {w_pop:.0%} | SSB PxWebApi v2, Tabell 10826 (1.1.2026) | ✅ Live API |
-| Traffic exposure | {w_traf:.0%} | NVDB road network | ⚠️ Documented assumption (1–3) |
-| Accessibility | {w_acc:.0%} | Ruter T-bane map | ⚠️ Documented assumption (binary) |
-| Coverage gap | {w_gap:.0%} | {service_source} | {'✅ Bring API (live)' if service_source == 'Bring API' else '⚠️ Estimated'} |
+| Population density | {w_pop:.0%} | SSB PxWebApi v2, Tabell 10826 (1.1.2026) | Live API |
+| Traffic exposure | {w_traf:.0%} | NVDB road network | Documented assumption (1–3) |
+| Accessibility | {w_acc:.0%} | Ruter T-bane map | Documented assumption (binary) |
+| Coverage gap | {w_gap:.0%} | {service_source} | {'Bring API (live)' if service_source == 'Bring API' else 'Estimated'} |
 
 **Known limitations:**
 - Traffic is qualitative, not measured ÅDT — replace with NVDB data for production
