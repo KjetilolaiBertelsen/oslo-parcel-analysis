@@ -469,7 +469,10 @@ if service_source == "Bring API" and not df_pickup.empty:
         # Cast to float — SQLite sometimes stores numbers as strings
         df_pickup["lat"] = pd.to_numeric(df_pickup["lat"], errors="coerce")
         df_pickup["lon"] = pd.to_numeric(df_pickup["lon"], errors="coerce")
-
+        df_pickup["is_locker"] = (
+    df_pickup["name"].str.lower().str.contains("pakkeboks", na=False)
+        ).astype(int)
+        df_pickup["locker_label"] = df_pickup["is_locker"].map({0: "Pickup point", 1: "Pakkeboks"})
         df_pts = df_pickup[
             (df_pickup["lat"].notna()) & (df_pickup["lon"].notna()) &
             (df_pickup["lat"] != 0)    & (df_pickup["lon"] != 0)
@@ -493,18 +496,19 @@ if service_source == "Bring API" and not df_pickup.empty:
         )
         fig_pts = px.scatter_mapbox(
             df_pts, lat="lat", lon="lon",
-            color="is_locker",
-            color_discrete_map={0: "#3498DB", 1: "#E74C3C"},
+            color="locker_label",
+            color_discrete_map={"Pickup point": "#E33014", "Pakkeboks": "#EDD718"},
             hover_name="name",
             hover_data={
                 "address": True, "bydel": True,
                 "unit_type": True, "is_locker": True,
+                "locker_label": False,
                 "lat": False, "lon": False,
             },
             mapbox_style="carto-positron",
             zoom=10.5, center={"lat": 59.92, "lon": 10.76},
             height=500,
-            labels={"is_locker": "Type (1=locker)"},
+            labels={"locker_label": "Type (1=locker)"},
         )
         fig_pts.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
         st.plotly_chart(fig_pts, use_container_width=True)
