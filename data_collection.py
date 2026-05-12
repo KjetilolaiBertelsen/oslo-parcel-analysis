@@ -193,7 +193,6 @@ if pickup_rows:
     df_pickup = pd.DataFrame(pickup_rows)
     data_source = "Bring API"
 else:
-    # Fallback estimated counts
     est = [16,20,14,15,18,8,8,10,7,5,6,12,9,9,5]
     df_pickup = pd.DataFrame({
         "bydel":       BYDEL_NAMES,
@@ -284,8 +283,6 @@ try:
         n_features   = len(geojson_dict["features"])
 
         print(f"  Converted TopoJSON → GeoJSON: {n_features} features")
-
-        # Show all bydel names so we can verify matching
         print(f"  Property keys: {list(geojson_dict['features'][0]['properties'].keys())}")
         print(f"  Bydel names in GeoJSON:")
         for feat in geojson_dict["features"]:
@@ -337,8 +334,6 @@ df_master["service_points"] = df_master["service_points"].fillna(
 )
 df_master["parcel_lockers"] = df_master["parcel_lockers"].fillna(0).astype(int)
 df_master["data_source"]    = data_source
-
-# Merge households if available
 tables = [t[0] for t in conn.execute(
     "SELECT name FROM sqlite_master WHERE type='table'"
 ).fetchall()]
@@ -352,8 +347,6 @@ if "households" in tables:
         df_master["service_points"] /
         df_master["households"].replace(0, np.nan) * 1000
     ).round(4)
-
-# Derived scoring variables
 def mm(s):
     mn, mx = s.min(), s.max()
     return (s-mn)/(mx-mn) if mx != mn else pd.Series(0.0, index=s.index)
