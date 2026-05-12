@@ -83,10 +83,6 @@ has_households = df_hh is not None and len(df_hh) > 0
 has_geojson    = geojson is not None and len(geojson.get("features", [])) > 0
 
 # ── GEOJSON NAME FIELD ────────────────────────────────────────────────────────
-# Confirmed from data_collection.py output:
-# Property keys: ['kommunenum', 'BYDEL', 'BYDELSNAVN', 'Kombinert']
-# Names match our DataFrame exactly — direct match, no fuzzy logic needed
-
 GEO_NAME_FIELD = "BYDELSNAVN"
 
 
@@ -213,8 +209,6 @@ metric_col, metric_label, cscale = metric_map[heatmap_metric]
 color_map = {"HIGH": "#27AE60", "MEDIUM": "#F39C12", "LOW": "#E74C3C"}
 
 if has_geojson:
-    # ── Names in GeoJSON BYDELSNAVN match DataFrame bydel exactly ────────────
-    # "Sentrum" (feature 16) has no match in df — it will stay uncoloured
     fig_map = px.choropleth_mapbox(
         df,
         geojson=geojson,
@@ -253,7 +247,6 @@ if has_geojson:
     st.plotly_chart(fig_map, use_container_width=True)
 
 else:
-    # ── Fallback: bubble map using bydel centroids ────────────────────────────
     centroids = {
         "Gamle Oslo":        (59.908, 10.773),
         "Grünerløkka":       (59.926, 10.762),
@@ -460,13 +453,9 @@ if has_households and "service_per_1000_hh" in df.columns:
 # ── PICKUP POINTS MAP ─────────────────────────────────────────────────────────
 
 if service_source == "Bring API" and not df_pickup.empty:
-
-    # Check columns exist before trying to filter on them
     has_coords = ("lat" in df_pickup.columns and
                   "lon" in df_pickup.columns)
-
     if has_coords:
-        # Cast to float — SQLite sometimes stores numbers as strings
         df_pickup["lat"] = pd.to_numeric(df_pickup["lat"], errors="coerce")
         df_pickup["lon"] = pd.to_numeric(df_pickup["lon"], errors="coerce")
         df_pickup["is_locker"] = (
@@ -480,7 +469,6 @@ if service_source == "Bring API" and not df_pickup.empty:
     else:
         df_pts = pd.DataFrame()
 
-    # ── TEMPORARY DEBUG — shows on the live app so we can diagnose ────────
     st.caption(
         f"Debug: service={service_source} · "
         f"has_coords={has_coords} · "
