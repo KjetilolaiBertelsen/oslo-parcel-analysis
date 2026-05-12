@@ -181,7 +181,7 @@ if bring_ok:
                                 "postal_code": p.get("postalCode", postcode),
                                 "city":        p.get("city", ""),
                                 "unit_type":   p.get("unitType", ""),
-                                "is_locker":   1 if p.get("unitType") == "37" else 0,
+                                "is_locker":   1 if str(p.get("unitType", "")) == "37" else 0,
                                 "lat":         float(p.get("latitude",  0) or 0),
                                 "lon":         float(p.get("longitude", 0) or 0),
                             })
